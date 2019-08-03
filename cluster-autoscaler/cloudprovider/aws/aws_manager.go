@@ -280,6 +280,7 @@ func (m *AwsManager) DeleteInstances(instances []*AwsInstanceRef) error {
 	if err := m.asgCache.DeleteInstances(instances); err != nil {
 		return err
 	}
+	klog.V(2).Infof("Some ASG instances might have been deleted, forcing ASG list refresh")
 	return m.forceRefresh()
 }
 
