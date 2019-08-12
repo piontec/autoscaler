@@ -33,7 +33,7 @@ import (
 
 const (
 	scaleToZeroSupported          = true
-	placeholderInstanceNamePrefix = "i-placeholder-"
+	placeholderInstanceNamePrefix = "i-placeholder"
 )
 
 type asgCache struct {
@@ -277,7 +277,7 @@ func (m *asgCache) DeleteInstances(instances []*AwsInstanceRef) error {
 
 // isPlaceholderInstance checks if the given instance is only a placeholder
 func (m *asgCache) isPlaceholderInstance(instance *AwsInstanceRef) bool {
-	matched, _ := regexp.MatchString(fmt.Sprintf("^%s\\d+$", placeholderInstanceNamePrefix), instance.Name)
+	matched, _ := regexp.MatchString(fmt.Sprintf("^%s.*\\d+$", placeholderInstanceNamePrefix), instance.Name)
 	return matched
 }
 
@@ -393,7 +393,7 @@ func (m *asgCache) createPlaceholdersForDesiredNonStartedInstances(groups []*aut
 		}
 
 		for i := real; i < desired; i++ {
-			id := fmt.Sprintf("%s%d", placeholderInstanceNamePrefix, i)
+			id := fmt.Sprintf("%s-%s-%d", placeholderInstanceNamePrefix, *g.AutoScalingGroupName, i)
 			klog.V(4).Infof("Instance group %s has only %d instances created while requested count is %d. "+
 				"Creating placeholder instance with ID %s.", *g.AutoScalingGroupName, real, desired, id)
 			g.Instances = append(g.Instances, &autoscaling.Instance{
